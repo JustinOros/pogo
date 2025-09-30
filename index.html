@@ -48,7 +48,17 @@
       Calculate
     </button>
 
-    <div id="result" class="mt-6 text-center text-slate-800 text-lg font-semibold hidden"></div>
+    <!-- Result container -->
+    <div id="result" class="mt-8 hidden">
+      <div class="relative w-full h-16 bg-slate-200 rounded-lg overflow-hidden">
+        <div id="progress-bar" class="absolute top-0 left-0 h-full bg-green-500"></div>
+        <div id="level-text" class="absolute inset-0 flex items-center justify-center text-3xl font-bold text-black"></div>
+      </div>
+      <div class="flex justify-between text-xs text-slate-500 mt-1">
+        <span id="level-left"></span>
+        <span id="level-right"></span>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -64,14 +74,7 @@
       806000000, 836000000, 866000000, 896000000, 926000000, 956000000, 986000000, 1016000000, 1046000000, 1076000000,  // 71–80
     ];
 
-    document.getElementById('calculate-btn').addEventListener('click', () => {
-      let xp = document.getElementById('xp-input').value.replace(/,/g,'').trim();
-      if (!xp || isNaN(xp)) {
-        alert('Please enter a valid number for XP.');
-        return;
-      }
-      xp = parseInt(xp, 10);
-
+    function calculateLevel(xp) {
       let level = 1;
       for (let i = 0; i < xpThresholds.length; i++) {
         if (xp >= xpThresholds[i]) {
@@ -80,19 +83,29 @@
           break;
         }
       }
+      return level;
+    }
 
-      let resultDiv = document.getElementById('result');
-      let output = `Current Level: ${level}`;
-
-      if (level < 80) {
-        let xpToNext = xpThresholds[level] - xp;
-        let xpTo80 = xpThresholds[79] - xp;
-        output += `<br>XP to next level: ${xpToNext.toLocaleString()}`;
-        output += `<br>XP to Level 80: ${xpTo80.toLocaleString()}`;
+    document.getElementById('calculate-btn').addEventListener('click', () => {
+      let xp = document.getElementById('xp-input').value.replace(/,/g,'').trim();
+      if (!xp || isNaN(xp)) {
+        alert('Please enter a valid number for XP.');
+        return;
       }
+      xp = parseInt(xp, 10);
 
-      resultDiv.innerHTML = output;
-      resultDiv.classList.remove('hidden');
+      let level = calculateLevel(xp);
+      let nextLevelXp = (level < xpThresholds.length) ? xpThresholds[level] : xp;
+      let currentLevelXp = xpThresholds[level - 1];
+      let progress = (xp - currentLevelXp) / (nextLevelXp - currentLevelXp) * 100;
+
+      // Update UI
+      document.getElementById('progress-bar').style.width = progress + '%';
+      document.getElementById('level-text').textContent = `Level ${level}`;
+      document.getElementById('level-left').textContent = level;
+      document.getElementById('level-right').textContent = (level < xpThresholds.length) ? level + 1 : level;
+
+      document.getElementById('result').classList.remove('hidden');
     });
 
     document.getElementById('xp-input').addEventListener('input', (e)=>{
