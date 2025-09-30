@@ -106,23 +106,26 @@
 
     function formatDays(days) {
       if (days > 365) {
-        let years = (days / 365).toFixed(1);
-        return `${years} years`;
+        return (days / 365).toFixed(1) + ' years';
       }
-      return `${days.toLocaleString()} days`;
+      return days.toLocaleString() + ' days';
     }
 
     function updateExtraInfo() {
       let nextLevelXp = (currentLevel < xpThresholds.length) ? xpThresholds[currentLevel] : currentXp;
       let xpToNext = Math.max(0, nextLevelXp - currentXp);
+      let xpTo40 = Math.max(0, xpThresholds[39] - currentXp); // Level 40
       let xpTo80 = Math.max(0, xpThresholds[79] - currentXp);
 
       let daysNext = Math.ceil(xpToNext / avgXpPerDay);
+      let days40 = Math.ceil(xpTo40 / avgXpPerDay);
       let days80 = Math.ceil(xpTo80 / avgXpPerDay);
 
-      document.getElementById('xp-per-day').textContent = avgXpPerDay.toLocaleString();
-      document.getElementById('days-next').textContent = formatDays(daysNext);
-      document.getElementById('days-80').textContent = formatDays(days80);
+      const nextText = currentLevel < 40
+        ? `If you average ${avgXpPerDay.toLocaleString()} XP per day, you will reach the next level in ${formatDays(daysNext)}, level 40 in ${formatDays(days40)}, and level 80 in ${formatDays(days80)}.`
+        : `If you average ${avgXpPerDay.toLocaleString()} XP per day, you will reach the next level in ${formatDays(daysNext)} and level 80 in ${formatDays(days80)}.`;
+
+      document.getElementById('extra-info').innerHTML = `<p>${nextText} <span id="edit-xp" class="ml-1 text-blue-500 cursor-pointer">✏️</span></p>`;
     }
 
     document.getElementById('calculate-btn').addEventListener('click', () => {
