@@ -9,7 +9,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pokémon GO Level Calculator</title>
 
-  <!-- Favicon set -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="pogo-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="pogo-192.png">
@@ -49,7 +48,6 @@
       Calculate
     </button>
 
-    <!-- Result container -->
     <div id="result" class="mt-8 hidden">
       <div class="relative w-full h-16 bg-slate-200 rounded-lg overflow-hidden">
         <div id="progress-bar" class="absolute top-0 left-0 h-full bg-green-500"></div>
@@ -60,17 +58,15 @@
         <span id="level-right"></span>
       </div>
 
-      <!-- Toggle arrow -->
       <div class="mt-2 text-gray-400 text-xl cursor-pointer" id="toggle-extra">▼</div>
 
-      <!-- Extra info -->
       <div id="extra-info" class="hidden mt-3 text-sm text-slate-600">
         <p>
           Assuming you average 
           <span id="xp-per-day">15,000</span> XP per day, 
           you will reach the next level in 
-          <span id="days-next">0</span> days and level 80 in 
-          <span id="days-80">0</span> days. <span id="edit-xp" class="ml-1 text-blue-500 cursor-pointer">✏️</span>
+          <span id="days-next">0</span> and level 80 in 
+          <span id="days-80">0</span>. <span id="edit-xp" class="ml-1 text-blue-500 cursor-pointer">✏️</span>
         </p>
       </div>
     </div>
@@ -79,14 +75,14 @@
   <script>
     // XP thresholds for levels 1–80
     const xpThresholds = [
-      0, 1000, 3000, 6000, 10000, 15000, 21000, 28000, 36000, 45000,          // 1–10
-      55000, 65000, 75000, 85000, 100000, 120000, 140000, 160000, 185000, 210000,  // 11–20
-      260000, 335000, 435000, 560000, 710000, 900000, 1100000, 1350000, 1650000, 2000000,  // 21–30
-      2500000, 3000000, 3750000, 4750000, 6000000, 7500000, 9500000, 12000000, 15000000, 20000000,  // 31–40
-      26000000, 33500000, 42500000, 43500000, 66500000, 82000000, 100000000, 121000000, 146000000, 176000000,  // 41–50
-      206000000, 236000000, 266000000, 296000000, 326000000, 356000000, 386000000, 416000000, 446000000, 476000000,  // 51–60
-      506000000, 536000000, 566000000, 596000000, 626000000, 656000000, 686000000, 716000000, 746000000, 776000000,  // 61–70
-      806000000, 836000000, 866000000, 896000000, 926000000, 956000000, 986000000, 1016000000, 1046000000, 1076000000,  // 71–80
+      0, 1000, 3000, 6000, 10000, 15000, 21000, 28000, 36000, 45000,
+      55000, 65000, 75000, 85000, 100000, 120000, 140000, 160000, 185000, 210000,
+      260000, 335000, 435000, 560000, 710000, 900000, 1100000, 1350000, 1650000, 2000000,
+      2500000, 3000000, 3750000, 4750000, 6000000, 7500000, 9500000, 12000000, 15000000, 20000000,
+      26000000, 33500000, 42500000, 43500000, 66500000, 82000000, 100000000, 121000000, 146000000, 176000000,
+      206000000, 236000000, 266000000, 296000000, 326000000, 356000000, 386000000, 416000000, 446000000, 476000000,
+      506000000, 536000000, 566000000, 596000000, 626000000, 656000000, 686000000, 716000000, 746000000, 776000000,
+      806000000, 836000000, 866000000, 896000000, 926000000, 956000000, 986000000, 1016000000, 1046000000, 1076000000,
     ];
 
     let avgXpPerDay = 15000;
@@ -105,6 +101,14 @@
       return level;
     }
 
+    function formatDays(days) {
+      if (days > 365) {
+        let years = (days / 365).toFixed(1);
+        return `${years} years`;
+      }
+      return `${days.toLocaleString()} days`;
+    }
+
     function updateExtraInfo() {
       let nextLevelXp = (currentLevel < xpThresholds.length) ? xpThresholds[currentLevel] : currentXp;
       let xpToNext = Math.max(0, nextLevelXp - currentXp);
@@ -114,8 +118,8 @@
       let days80 = Math.ceil(xpTo80 / avgXpPerDay);
 
       document.getElementById('xp-per-day').textContent = avgXpPerDay.toLocaleString();
-      document.getElementById('days-next').textContent = daysNext.toLocaleString();
-      document.getElementById('days-80').textContent = days80.toLocaleString();
+      document.getElementById('days-next').textContent = formatDays(daysNext);
+      document.getElementById('days-80').textContent = formatDays(days80);
     }
 
     document.getElementById('calculate-btn').addEventListener('click', () => {
