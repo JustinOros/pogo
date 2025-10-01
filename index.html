@@ -17,22 +17,28 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { 
+      font-family: 'Inter', sans-serif; 
+      position: relative;
+      background: url('pogo-wallpaper.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
     body::before {
       content: '';
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.8); /* overlay to keep text readable */
       background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.05) 1px, transparent 0);
       background-size: 20px 20px;
-      opacity: 0.5;
+      opacity: 0.8;
       z-index: -1;
     }
     .cursor-pointer { cursor: pointer; }
     #edit-xp { display: inline-block; transform: scaleX(-1); }
   </style>
 </head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4">
 
   <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-slate-200 text-center">
     <img src="pogo.png" alt="Pokémon GO" class="mx-auto mb-4 w-32 h-auto">
