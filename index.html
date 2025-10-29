@@ -106,96 +106,108 @@
     </div>
   </div>
 
-  <script>
-    const xpThresholds = [
-      0, 1000, 3000, 6000, 10000, 15000, 21000, 28000, 36000, 45000,
-      55000, 65000, 75000, 85000, 100000, 120000, 140000, 160000, 185000, 210000,
-      260000, 335000, 435000, 560000, 710000, 900000, 1100000, 1350000, 1650000, 2000000,
-      2500000, 3000000, 3750000, 4750000, 6000000, 7500000, 9500000, 12000000, 15000000, 20000000,
-      26000000, 33500000, 42500000, 43500000, 66500000, 82000000, 100000000, 121000000, 146000000, 176000000,
-      206000000, 236000000, 266000000, 296000000, 326000000, 356000000, 386000000, 416000000, 446000000, 476000000,
-      506000000, 536000000, 566000000, 596000000, 626000000, 656000000, 686000000, 716000000, 746000000, 776000000,
-      806000000, 836000000, 866000000, 896000000, 926000000, 956000000, 986000000, 1016000000, 1046000000, 1076000000,
-    ];
+<script>
+  let xpThresholds = [];
+  let avgXpPerDay = 15000;
+  let currentXp = 0;
+  let currentLevel = 1;
 
-    let avgXpPerDay = 15000;
-    let currentXp = 0;
-    let currentLevel = 1;
+  async function loadXPThresholds() {
+    try {
+      const response = await fetch('levels.csv');
+      const text = await response.text();
 
-    function calculateLevel(xp) {
-      let level = 1;
-      for (let i = 0; i < xpThresholds.length; i++) {
-        if (xp >= xpThresholds[i]) level = i + 1;
-        else break;
-      }
-      return level;
+      xpThresholds = text
+        .trim()
+        .split('\n')
+        .map(line => parseInt(line.split(',')[1].replace(/,/g, ''), 10));
+
+      console.log("Loaded XP thresholds:", xpThresholds);
+    } catch (error) {
+      alert("Failed to load levels.csv. Please ensure it's in the same folder as index.html.");
+      console.error(error);
     }
+  }
 
-    function formatDays(days) {
-      if (days > 365) return (days / 365).toFixed(1) + ' years';
-      return days.toLocaleString() + ' days';
+  function calculateLevel(xp) {
+    let level = 1;
+    for (let i = 0; i < xpThresholds.length; i++) {
+      if (xp >= xpThresholds[i]) level = i + 1;
+      else break;
     }
+    return level;
+  }
 
-    function updateExtraInfo() {
-      let nextLevelXp = (currentLevel < xpThresholds.length) ? xpThresholds[currentLevel] : currentXp;
-      let xpToNext = Math.max(0, nextLevelXp - currentXp);
-      let xpTo40 = Math.max(0, xpThresholds[39] - currentXp);
-      let xpTo80 = Math.max(0, xpThresholds[79] - currentXp);
+  function formatDays(days) {
+    if (days > 365) return (days / 365).toFixed(1) + ' years';
+    return days.toLocaleString() + ' days';
+  }
 
-      let daysNext = Math.ceil(xpToNext / avgXpPerDay);
-      let days40 = Math.ceil(xpTo40 / avgXpPerDay);
-      let days80 = Math.ceil(xpTo80 / avgXpPerDay);
+  function updateExtraInfo() {
+    let nextLevelXp = (currentLevel < xpThresholds.length) ? xpThresholds[currentLevel] : currentXp;
+    let xpToNext = Math.max(0, nextLevelXp - currentXp);
+    let xpTo40 = Math.max(0, xpThresholds[39] - currentXp);
+    let xpTo80 = Math.max(0, xpThresholds[79] - currentXp);
 
-      const nextText = currentLevel < 40
-        ? `If you average ${avgXpPerDay.toLocaleString()} XP per day, you will reach the next level in ${formatDays(daysNext)}, level 40 in ${formatDays(days40)}, and level 80 in ${formatDays(days80)}.`
-        : `If you average ${avgXpPerDay.toLocaleString()} XP per day, you will reach the next level in ${formatDays(daysNext)} and level 80 in ${formatDays(days80)}.`;
+    let daysNext = Math.ceil(xpToNext / avgXpPerDay);
+    let days40 = Math.ceil(xpTo40 / avgXpPerDay);
+    let days80 = Math.ceil(xpTo80 / avgXpPerDay);
 
-      document.getElementById('extra-info').innerHTML = `<p>${nextText} <span id="edit-xp" class="ml-1 text-blue-500 cursor-pointer">✏️</span></p>`;
+    const nextText = currentLevel < 40
+      ? `If you average ${avgXpPerDay.toLocaleString()} XP per day, you will reach the next level in ${formatDays(daysNext)}, level 40 in ${formatDays(days40)}, and level 80 in ${formatDays(days80)}.`
+      : `If you average ${avgXpPerDay.toLocaleString()} XP per day, you will reach the next level in ${formatDays(daysNext)} and level 80 in ${formatDays(days80)}.`;
 
-      document.getElementById('edit-xp').addEventListener('click', () => {
-        let newVal = prompt("Enter your average XP per day:", avgXpPerDay);
-        if (newVal && !isNaN(newVal) && parseInt(newVal) > 0) {
-          avgXpPerDay = parseInt(newVal, 10);
-          updateExtraInfo();
-        }
-      });
-    }
+    document.getElementById('extra-info').innerHTML = `<p>${nextText} <span id="edit-xp" class="ml-1 text-blue-500 cursor-pointer">✏️</span></p>`;
 
-    document.getElementById('calculate-btn').addEventListener('click', () => {
-      let xp = document.getElementById('xp-input').value.replace(/,/g,'').trim();
-      if (!xp || isNaN(xp)) { alert('Please enter a valid number for XP.'); return; }
-      currentXp = parseInt(xp, 10);
-
-      currentLevel = calculateLevel(currentXp);
-      let nextLevelXp = (currentLevel < xpThresholds.length) ? xpThresholds[currentLevel] : currentXp;
-      let currentLevelXp = xpThresholds[currentLevel - 1];
-      let progress = (currentXp - currentLevelXp) / (nextLevelXp - currentLevelXp) * 100;
-
-      document.getElementById('progress-bar').style.width = progress + '%';
-      document.getElementById('level-text').textContent = `Level ${currentLevel}`;
-      document.getElementById('level-left').textContent = currentLevel;
-      document.getElementById('level-right').textContent = (currentLevel < xpThresholds.length) ? currentLevel + 1 : currentLevel;
-
-      document.getElementById('result').classList.remove('hidden');
-
-      updateExtraInfo();
-    });
-
-    document.getElementById('xp-input').addEventListener('input', (e)=>{
-      e.target.value = e.target.value.replace(/[^0-9,]/g,'');
-    });
-
-    const themeToggle = document.getElementById('theme-toggle');
-    const mainCard = document.getElementById('main-card');
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      if (document.body.classList.contains('dark-mode')) {
-        themeToggle.textContent = '🌙';
-      } else {
-        themeToggle.textContent = '☀️';
+    document.getElementById('edit-xp').addEventListener('click', () => {
+      let newVal = prompt("Enter your average XP per day:", avgXpPerDay);
+      if (newVal && !isNaN(newVal) && parseInt(newVal) > 0) {
+        avgXpPerDay = parseInt(newVal, 10);
+        updateExtraInfo();
       }
     });
-  </script>
+  }
+
+  document.getElementById('calculate-btn').addEventListener('click', () => {
+    if (xpThresholds.length === 0) {
+      alert('Level data not loaded yet. Please wait a moment and try again.');
+      return;
+    }
+
+    let xp = document.getElementById('xp-input').value.replace(/,/g, '').trim();
+    if (!xp || isNaN(xp)) {
+      alert('Please enter a valid number for XP.');
+      return;
+    }
+
+    currentXp = parseInt(xp, 10);
+    currentLevel = calculateLevel(currentXp);
+
+    let nextLevelXp = (currentLevel < xpThresholds.length) ? xpThresholds[currentLevel] : currentXp;
+    let currentLevelXp = xpThresholds[currentLevel - 1];
+    let progress = (currentXp - currentLevelXp) / (nextLevelXp - currentLevelXp) * 100;
+
+    document.getElementById('progress-bar').style.width = progress + '%';
+    document.getElementById('level-text').textContent = `Level ${currentLevel}`;
+    document.getElementById('level-left').textContent = currentLevel;
+    document.getElementById('level-right').textContent = (currentLevel < xpThresholds.length) ? currentLevel + 1 : currentLevel;
+
+    document.getElementById('result').classList.remove('hidden');
+    updateExtraInfo();
+  });
+
+  document.getElementById('xp-input').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/[^0-9,]/g, '');
+  });
+
+  const themeToggle = document.getElementById('theme-toggle');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    themeToggle.textContent = document.body.classList.contains('dark-mode') ? '🌙' : '☀️';
+  });
+
+  window.addEventListener('DOMContentLoaded', loadXPThresholds);
+</script>
 
 </body>
 </html>
