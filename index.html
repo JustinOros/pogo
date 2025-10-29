@@ -150,6 +150,17 @@
   }
 
   function updateExtraInfo() {
+    const maxLevel = xpThresholds.length;
+    const maxXp = xpThresholds[maxLevel - 1];
+
+    if (currentXp >= maxXp) {
+      document.getElementById('extra-info').innerHTML = `
+        <p class="text-green-600 font-semibold text-lg">
+          🎉 Congratulations! You're max level!
+        </p>`;
+      return;
+    }
+
     let nextLevelXp = (currentLevel < xpThresholds.length) ? xpThresholds[currentLevel] : currentXp;
     let xpToNext = Math.max(0, nextLevelXp - currentXp);
     let xpTo40 = Math.max(0, xpThresholds[39] - currentXp);
@@ -163,7 +174,8 @@
       ? `If you average ${avgXpPerDay.toLocaleString()} XP per day, you will reach the next level in ${formatDays(daysNext)}, level 40 in ${formatDays(days40)}, and level 80 in ${formatDays(days80)}.`
       : `If you average ${avgXpPerDay.toLocaleString()} XP per day, you will reach the next level in ${formatDays(daysNext)} and level 80 in ${formatDays(days80)}.`;
 
-    document.getElementById('extra-info').innerHTML = `<p>${nextText} <span id="edit-xp" class="ml-1 text-blue-500 cursor-pointer">✏️</span></p>`;
+    document.getElementById('extra-info').innerHTML = `
+      <p>${nextText} <span id="edit-xp" class="ml-1 text-blue-500 cursor-pointer">✏️</span></p>`;
 
     document.getElementById('edit-xp').addEventListener('click', () => {
       let newVal = prompt("Enter your average XP per day:", avgXpPerDay);
