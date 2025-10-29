@@ -117,12 +117,18 @@
       const response = await fetch('levels.csv');
       const text = await response.text();
 
-      xpThresholds = text
-        .trim()
-        .split('\n')
-        .map(line => parseInt(line.split(',')[1].replace(/,/g, ''), 10));
+      const lines = text.trim().split('\n');
 
-      console.log("Loaded XP thresholds:", xpThresholds);
+      let cumulative = 0;
+      xpThresholds = lines.map((line, i) => {
+        const parts = line.split(',');
+        let xp = parseInt(parts[1].replace(/,/g, ''), 10);
+        if (i === 0) return 0; // Level 1 starts at 0 XP
+        cumulative += xp;
+        return cumulative;
+      });
+
+      console.log("Loaded cumulative XP thresholds:", xpThresholds);
     } catch (error) {
       alert("Failed to load levels.csv. Please ensure it's in the same folder as index.html.");
       console.error(error);
